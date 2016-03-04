@@ -10,6 +10,8 @@ use OAuth2\Server as OAuth2Server;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use ZF\OAuth2\Controller\AuthController;
+use Zend\Session\Config\SessionConfig;
+use Zend\Session\Container;
 
 class AuthControllerFactory implements FactoryInterface
 {

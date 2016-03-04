@@ -20,6 +20,7 @@ use ZF\ApiProblem\ApiProblemResponse;
 use ZF\ContentNegotiation\ViewModel;
 use ZF\OAuth2\Provider\UserId\Request as UserIdProviderRequest;
 use ZF\OAuth2\Provider\UserId\UserIdProviderInterface;
+use Zend\Session\Container;
 
 class AuthController extends AbstractActionController
 {
@@ -151,8 +152,59 @@ class AuthController extends AbstractActionController
         }
 
         $authorized = $request->request('authorized', false);
+
+        $loginEmail = $request->request('login_email', false);
+        $loginPassword = $request->request('login_password', false);
+
+        $signupEmail = $request->request('signup_email', false);
+        $signupPassword = $request->request('signup_password', false);
+        $signupPasswordConfirm = $request->request('signup_confirm', false);
+
+        $clientId = $request->query('client_id', false);
+
+        $authorizationSession = new Container('authorization');
+
+        if (null /* Validate sign-up form  */) {
+            /*
+             * @todo Create User to MySQL: INSERT INTO oauth.oauth_users; use email as username
+             *
+             * @todo We also probably have to collect additional information about the user for complete profile
+             *
+             * @todo Consider if such information should instead be located at the User Resource, for which the user is
+             * provided access to by using OAuth2; sorry for the complexity, but we are doing a complex thing
+            */
+        }
+        else {
+            // @todo Do something related to invalid password or email
+        }
+
+        if (null /* Forgot Password */) {
+            // @todo Send Email, which has a hash, which enables password reset
+        }
+
+        if (null /* Validate login form  */) {
+            // @todo Create Session; Create authorizedList by SELECT * FROM oauth.oauth_authorization_codes WHERE user_id
+            // The user_id should match users email; the user id provider has to be configured in such way
+        }
+        else {
+            // @todo Do something related to invalid password or email
+        }
+
+        $authorizedList = $authorizationSession->offsetGet('authorizedList');
+
+        // If the user approves the authorization by clicking 'yes'
+        if ($authorized === 'yes') {
+            //@todo: Persist authorization to database; this might be done by $this->server->handleAuthorizeRequest
+            // if the $userIdProvider is configured properly
+            $authorizedList[$clientId] = true;
+            $authorizationSession->offsetSet('authorizedList', $authorizedList);
+        }
+
+        $authorized = $authorizedList[$clientId] === true ?
+            'yes':
+            null;
+
         if (empty($authorized)) {
-            $clientId = $request->query('client_id', false);
             $view = new ViewModel(['clientId' => $clientId]);
             $view->setTemplate('oauth/authorize');
             return $view;
